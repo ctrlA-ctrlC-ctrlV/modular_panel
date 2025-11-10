@@ -1,50 +1,50 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+Version change: UNDEFINED → 1.0.0
+Modified principles: (initial creation)
+Added sections: Core Principles; Non-Functional Standards; Development Workflow & Quality Gates; Governance
+Removed sections: none
+Templates requiring updates:
+	- .specify/templates/plan-template.md ✅ (Constitution Check will reference Principles I–V)
+	- .specify/templates/spec-template.md ✅ (User story independence aligns with Principle III)
+	- .specify/templates/tasks-template.md ✅ (Story grouping & test-first aligns with Principle III)
+	- .specify/templates/agent-file-template.md ⚠ pending (needs population from plans)
+	- .specify/templates/commands/* ⚠ pending (directory absent; create when command docs added)
+Follow-up TODOs: NONE
+-->
+
+# modular_panel Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Modular Domain-Driven Architecture (NON-NEGOTIABLE)
+Each feature MUST be delivered as a self-contained module with explicit public contracts (API surface, events, or data schemas). No module may depend on internal details of another—only published contracts. Circular dependencies are prohibited. Every module MUST own a clear bounded context with single purpose and MUST document its contract before implementation. Rationale: Prevents systemic coupling, enables parallel work, and supports independent deployment & replacement.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Consistent, Versioned Interfaces
+All external and inter-module communication MUST use documented, versioned interfaces (HTTP/JSON APIs, typed events, or CLI commands). Error responses MUST include machine-parsable codes plus human-readable messages. Breaking changes REQUIRE a new major version and a migration note. Deprecations MUST provide at least one minor version of overlap before removal. Rationale: Stability for consumers and predictable evolution.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Test-First & Continuous Verification (NON-NEGOTIABLE)
+Work MUST begin by defining failing tests: unit + contract (module boundary) before implementation. Red → Green → Refactor cycle enforced. Minimum coverage: 85% lines, 100% for contract-critical functions. Integration tests MUST exist for cross-module flows affecting persistence, auth, or performance budgets. CI MUST block merges if tests fail, coverage threshold unmet, or contract snapshots change without approval. Rationale: Ensures correctness, prevents regressions, and codifies expectations.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Observability & Operational Transparency
+Structured logging (context + correlation IDs) MUST be implemented for all request and background processing paths. Metrics MUST track latency (p50, p95), error rates, and key business events. Tracing MUST propagate through async boundaries. No silent failures—errors MUST be surfaced with severity classification. SLOs: <250ms p95 for API responses (baseline), <1% error rate per endpoint. Rationale: Enables rapid issue diagnosis and data-driven reliability improvements.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Performance, Security & Simplicity
+Each module MUST define performance budgets (CPU, memory, latency) and security requirements (input validation, authentication, authorization boundaries, secret management). Dependencies MUST be added only with explicit justification tied to a principle or requirement—alternatives considered documented if complexity increases. All code paths MUST fail fast on invalid input. Prefer smallest viable abstraction—no "just in case" extensibility. Rationale: Maintains maintainability, reduces attack surface, and prevents premature complexity.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Non-Functional Standards
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+Accessibility: All user-facing components MUST meet WCAG 2.1 AA contrast and focus criteria. Security: Secrets MUST NOT be committed; environment configuration handled via secure vault or env injection. Data Protection: PII stored MUST be minimal and encrypted at rest & in transit (TLS 1.3). Performance Budgets: Initial page load <3s on 3G simulated, backend median latency <150ms. Error Handling: Each module defines standard error taxonomy (validation, auth, conflict, transient) with mapped status codes. Internationalization: All user-visible strings routed through i18n pipeline
+once localization is enabled (future feature). Rationale: Guarantees baseline quality and readiness for scale.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow & Quality Gates
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Branch Naming: feature/<ticket-or-slug>, fix/<issue>, chore/<scope>. PR Requirements: Link to spec or plan, list affected modules, updated tests, and migration notes for any contract change. CI Quality Gates (ALL MUST PASS): lint/static analysis, tests & coverage thresholds, contract diff approval, SAST scan (no high severity), dependency vulnerability check, formatting compliance. Review: Minimum 2 approvals for non-trivial changes (>200 LOC or contract modifications). Release: Version bump per Semantic Versioning; changelog entry referencing principles when relevant. Rollback: Must be possible within 5 minutes via automated deployment tooling. Rationale: Ensures repeatable, safe delivery and traceable changes.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Authority: This constitution supersedes ad-hoc practices. Conflicts resolved by referencing principles in order (I has highest weight, then II, etc.). Amendment Procedure: Proposal PR including diff + rationale + impact analysis; requires 3 maintainer approvals; version bump type determined by semantic impact. Versioning: MAJOR = principle removal/redefinition; MINOR = new principle/section or expanded non-functional standard; PATCH = clarifications only. Compliance Reviews: Quarterly audit verifying module contracts, test coverage, observability signals, and budgets. Enforcement: Non-compliant merges reverted; repeated violations trigger workflow retrospective. Documentation: All principles referenced in plan "Constitution Check" section; tasks and specs must reflect independence & test-first mandates. Sunset: Deprecated principles tracked until removed in next MAJOR. Rationale: Provides clear
+process for evolution while preserving stability.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-11-10 | **Last Amended**: 2025-11-10
+
