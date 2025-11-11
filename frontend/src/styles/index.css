@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Bootstrap CSS - selective import */
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities';
+
+/* Bootstrap Layout & components we want */
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+
+/* Bootstrap Components */
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/button-group';
+@import 'bootstrap/scss/nav';
+@import 'bootstrap/scss/navbar';
+@import 'bootstrap/scss/card';
+@import 'bootstrap/scss/modal';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/tables';
+@import 'bootstrap/scss/alert';
+@import 'bootstrap/scss/badge';
+@import 'bootstrap/scss/progress';
+@import 'bootstrap/scss/spinner';
+@import 'bootstrap/scss/tooltip';
+@import 'bootstrap/scss/popover';
+
+/* Bootstrap utilities API */
+@import 'bootstrap/scss/utilities/api';
+
+/* Custom CSS variables for theme consistency */
+:root {
+  --bs-primary: #3b82f6;
+  --bs-primary-rgb: 59, 130, 246;
+  --bs-secondary: #6b7280;
+  --bs-secondary-rgb: 107, 114, 128;
+}
+
+/* Custom utility classes for Tailwind + Bootstrap integration */
+.btn-primary {
+  @apply bg-primary-600 border-primary-600 hover:bg-primary-700 hover:border-primary-700;
+}
+
+/* Ensure consistent spacing and typography */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  @apply text-gray-900;
+}
+
+/* Custom component classes */
+.form-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.card-custom {
+  @apply bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden;
+}
+
+.btn-custom {
+  @apply px-4 py-2 rounded-md font-medium text-sm transition-colors duration-200;
+}
+
+.btn-custom-primary {
+  @apply btn-custom bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+.btn-custom-secondary {
+  @apply btn-custom bg-gray-200 text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+}

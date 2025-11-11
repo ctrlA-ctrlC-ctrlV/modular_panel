@@ -22,14 +22,14 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per plan in backend/ and frontend/ at repository root
-- [ ] T002 Initialize Node.js + TypeScript in backend/package.json with scripts (dev, build, test)
-- [ ] T003 Initialize React app in frontend/package.json with scripts (dev, build, test)
-- [ ] T004 Configure Tailwind and Bootstrap in frontend/tailwind.config.js and frontend/src/styles/index.css
-- [ ] T005 Configure TypeScript in backend/tsconfig.json and frontend/tsconfig.json
-- [ ] T006 [P] Add eslint + prettier configs at root and per package (.eslintrc.cjs, .prettierrc)
-- [ ] T007 [P] Create backend folder skeleton per plan (src/config, src/modules/*, src/api/*, src/db, src/schemas, src/instrumentation)
-- [ ] T008 [P] Create frontend folder skeleton per plan (src/components/*, src/pages, src/services, src/state, src/styles)
+- [x] T001 Create project structure per plan in backend/ and frontend/ at repository root
+- [x] T002 Initialize Node.js + TypeScript in backend/package.json with scripts (dev, build, test)
+- [x] T003 Initialize React app in frontend/package.json with scripts (dev, build, test)
+- [x] T004 Configure Tailwind and Bootstrap in frontend/tailwind.config.js and frontend/src/styles/index.css
+- [x] T005 Configure TypeScript in backend/tsconfig.json and frontend/tsconfig.json
+- [x] T006 [P] Add eslint + prettier configs at root and per package (.eslintrc.cjs, .prettierrc)
+- [x] T007 [P] Create backend folder skeleton per plan (src/config, src/modules/*, src/api/*, src/db, src/schemas, src/instrumentation)
+- [x] T008 [P] Create frontend folder skeleton per plan (src/components/*, src/pages, src/services, src/state, src/styles)
 
 ---
 
