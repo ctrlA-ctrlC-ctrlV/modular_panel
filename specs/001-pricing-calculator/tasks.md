@@ -37,18 +37,18 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T009 Setup database migration tooling in backend/src/db (migrations/, migration runner)
-- [ ] T010 Create initial DB migrations for price_config, product_config, quote, quote_sequence tables in backend/src/db/migrations
-- [ ] T011 Implement configuration loader (env) in backend/src/config/index.ts
-- [ ] T012 Implement logging (Winston) in backend/src/instrumentation/logger.ts
-- [ ] T013 Implement error handler middleware in backend/src/api/middleware/errorHandler.ts
-- [ ] T014 Implement request validation middleware (Zod) in backend/src/api/middleware/validation.ts
-- [ ] T015 Setup Express app bootstrap with router mount point /api/v1 in backend/src/index.ts
-- [ ] T016 Implement observability setup (OTel tracing, Prometheus metrics) in backend/src/instrumentation/
-- [ ] T017 Implement base auth guard (admin-only) in backend/src/api/middleware/auth.ts
-- [ ] T018 [P] Create API client base in frontend/src/services/http.ts (uses VITE_API_BASE)
-- [ ] T019 [P] Setup React Query provider and app shell in frontend/src/state/queryClient.ts and frontend/src/main.tsx
-- [ ] T020 [P] Setup global styles and Bootstrap integration overrides in frontend/src/styles/index.css
+- [x] T009 Setup database migration tooling in backend/src/db (migrations/, migration runner)
+- [x] T010 Create initial DB migrations for price_config, product_config, quote, quote_sequence tables in backend/src/db/migrations
+- [x] T011 Implement configuration loader (env) in backend/src/config/index.ts
+- [x] T012 Implement logging (Winston) in backend/src/instrumentation/logger.ts
+- [x] T013 Implement error handler middleware in backend/src/api/middleware/errorHandler.ts
+- [x] T014 Implement request validation middleware (Zod) in backend/src/api/middleware/validation.ts
+- [x] T015 Setup Express app bootstrap with router mount point /api/v1 in backend/src/index.ts
+- [x] T016 Implement observability setup (OTel tracing, Prometheus metrics) in backend/src/instrumentation/
+- [x] T017 Implement base auth guard (admin-only) in backend/src/api/middleware/auth.ts
+- [x] T018 [P] Create API client base in frontend/src/services/http.ts (uses VITE_API_BASE)
+- [x] T019 [P] Setup React Query provider and app shell in frontend/src/state/queryClient.tsx and frontend/src/main.tsx
+- [x] T020 [P] Setup global styles and Bootstrap integration overrides in frontend/src/styles/index.css
 
 ### Connectivity & DigitalOcean (Foundational)
 
