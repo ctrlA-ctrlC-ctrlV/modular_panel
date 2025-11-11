@@ -1,0 +1,232 @@
+openapi: 3.1.0
+info:
+  title: Pricing Calculator API
+  version: 1.0.0
+  description: REST API for pricing calculation, quote persistence, configuration management.
+servers:
+  - url: /api/v1
+paths:
+  /pricing/current:
+    get:
+      summary: Get current pricing configuration
+      operationId: getCurrentPricing
+      responses:
+        '200':
+          description: Current configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceConfig'
+  /pricing:
+    post:
+      summary: Create new pricing configuration (not current by default)
+      operationId: createPricing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceConfigInput'
+      responses:
+        '201': { description: Created }
+  /pricing/{id}:
+    put:
+      summary: Update pricing configuration
+      operationId: updatePricing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PriceConfigInput' }
+      responses:
+        '200': { description: Updated }
+  /pricing/{id}/activate:
+    post:
+      summary: Mark configuration as current (deactivates previous current)
+      operationId: activatePricing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Activated }
+  /calculate:
+    post:
+      summary: Calculate pricing for a product configuration (not saved)
+      operationId: calculatePricing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductConfigInput' }
+      responses:
+        '200':
+          description: Calculation result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuoteEstimate' }
+  /quotes:
+    post:
+      summary: Save a quote (generates unique quote number)
+      operationId: createQuote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateQuoteRequest' }
+      responses:
+        '201':
+          description: Quote created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Quote' }
+    get:
+      summary: Search quotes
+      operationId: searchQuotes
+      parameters:
+        - in: query
+          name: quoteNumber
+          schema: { type: string }
+        - in: query
+          name: fromDate
+          schema: { type: string, format: date }
+        - in: query
+          name: toDate
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: List of quotes
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/QuoteSummary' }
+  /quotes/{quoteNumber}:
+    get:
+      summary: Get quote by number
+      operationId: getQuote
+      parameters:
+        - in: path
+          name: quoteNumber
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Quote, content: { application/json: { schema: { $ref: '#/components/schemas/Quote' } } } }
+    patch:
+      summary: Update quote notes or customer details
+      operationId: updateQuote
+      parameters:
+        - in: path
+          name: quoteNumber
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateQuoteRequest' }
+      responses:
+        '200': { description: Updated }
+    delete:
+      summary: Delete quote (soft delete)
+      operationId: deleteQuote
+      parameters:
+        - in: path
+          name: quoteNumber
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Deleted }
+  /quotes/{quoteNumber}/document:
+    post:
+      summary: Generate professional quote document
+      operationId: generateQuoteDocument
+      parameters:
+        - in: path
+          name: quoteNumber
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: PDF document
+          content:
+            application/pdf:
+              schema: { type: string, format: binary }
+components:
+  schemas:
+    PriceConfig:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        label: { type: string }
+        currency: { type: string }
+        current: { type: boolean }
+        validFrom: { type: string, format: date }
+        validTo: { type: string, nullable: true }
+        taxes: { type: object, properties: { vatPct: { type: number } }, required: [vatPct] }
+    PriceConfigInput:
+      allOf: [{ $ref: '#/components/schemas/PriceConfig' }]
+      required: [label, currency, validFrom]
+    ProductConfigInput:
+      type: object
+      properties:
+        size: { type: object, properties: { widthM: { type: number }, depthM: { type: number } }, required: [widthM, depthM] }
+        discount: { type: number }
+        notes: { type: string }
+      required: [size]
+    QuoteEstimate:
+      type: object
+      properties:
+        currency: { type: string }
+        subtotalExVat: { type: number }
+        vatRate: { type: number }
+        totalIncVat: { type: number }
+        lineItems: { type: array, items: { $ref: '#/components/schemas/LineItem' } }
+      required: [currency, subtotalExVat, vatRate, totalIncVat]
+    LineItem:
+      type: object
+      properties:
+        code: { type: string }
+        description: { type: string }
+        quantity: { type: number }
+        unitPrice: { type: number }
+        lineTotal: { type: number }
+      required: [code, description, quantity, unitPrice, lineTotal]
+    CreateQuoteRequest:
+      type: object
+      properties:
+        productConfig: { $ref: '#/components/schemas/ProductConfigInput' }
+        customer: { type: object, properties: { name: { type: string }, email: { type: string }, phone: { type: string } }, required: [name] }
+      required: [productConfig, customer]
+    Quote:
+      type: object
+      properties:
+        quoteNumber: { type: string }
+        quoteDate: { type: string, format: date }
+        customer: { type: object }
+        estimate: { $ref: '#/components/schemas/QuoteEstimate' }
+        currency: { type: string }
+        notes: { type: string }
+        status: { type: string }
+      required: [quoteNumber, quoteDate, estimate, currency, status]
+    QuoteSummary:
+      type: object
+      properties:
+        quoteNumber: { type: string }
+        quoteDate: { type: string, format: date }
+        currency: { type: string }
+        totalIncVat: { type: number }
+      required: [quoteNumber, quoteDate, currency, totalIncVat]
+    UpdateQuoteRequest:
+      type: object
+      properties:
+        notes: { type: string }
+        customer: { type: object, properties: { name: { type: string }, email: { type: string }, phone: { type: string } } }
+      additionalProperties: false
+security: []
