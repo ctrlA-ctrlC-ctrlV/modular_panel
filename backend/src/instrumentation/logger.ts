@@ -1,5 +1,39 @@
 import winston from 'winston';
-import { getConfig, isDevelopment, isProduction } from '../config';
+import { Request, Response, NextFunction } from 'express';
+import { getConfig, isProduction } from '../config';
+
+// Explicit interfaces for structured log meta
+export interface HttpLogMeta {
+  method: string;
+  url: string;
+  statusCode?: number;
+  responseTime?: number;
+  userAgent?: string;
+  ip?: string;
+  contentLength?: string | number;
+}
+
+export interface DatabaseLogMeta {
+  table?: string;
+  query?: string;
+  duration?: number;
+  rowCount?: number;
+}
+
+export interface SecurityLogMeta {
+  ip?: string;
+  userAgent?: string;
+  userId?: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+}
+
+export interface AuditLogMeta {
+  userId?: string;
+  resource?: string;
+  resourceId?: string;
+  ip?: string;
+  userAgent?: string;
+}
 
 // Custom format for development
 const developmentFormat = winston.format.combine(
@@ -103,25 +137,12 @@ class Logger {
   }
 
   // HTTP request logging
-  http(message: string, meta: {
-    method: string;
-    url: string;
-    statusCode?: number;
-    responseTime?: number;
-    userAgent?: string;
-    ip?: string;
-    contentLength?: string | number;
-  }): void {
+  http(message: string, meta: HttpLogMeta): void {
     this.winston.http(message, meta);
   }
 
   // Database operation logging
-  database(operation: string, meta: {
-    table?: string;
-    query?: string;
-    duration?: number;
-    rowCount?: number;
-  }): void {
+  database(operation: string, meta: DatabaseLogMeta): void {
     this.winston.debug(`Database ${operation}`, {
       type: 'database',
       operation,
@@ -139,12 +160,7 @@ class Logger {
   }
 
   // Security logging
-  security(event: string, meta: {
-    ip?: string;
-    userAgent?: string;
-    userId?: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
-  }): void {
+  security(event: string, meta: SecurityLogMeta): void {
     this.winston.warn(`Security event: ${event}`, {
       type: 'security',
       event,
@@ -164,13 +180,7 @@ class Logger {
   }
 
   // Audit logging for compliance
-  audit(action: string, meta: {
-    userId?: string;
-    resource?: string;
-    resourceId?: string;
-    ip?: string;
-    userAgent?: string;
-  }): void {
+  audit(action: string, meta: AuditLogMeta): void {
     this.winston.info(`Audit: ${action}`, {
       type: 'audit',
       action,
@@ -197,22 +207,30 @@ const logger = new Logger();
 
 // Express middleware for request logging
 export function requestLogger() {
-  return (req: any, res: any, next: any) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const startTime = Date.now();
     
     res.on('finish', () => {
       const duration = Date.now() - startTime;
       const statusCode = res.statusCode;
       
-      logger.http('HTTP Request', {
+      const logData: HttpLogMeta = {
         method: req.method,
         url: req.originalUrl || req.url,
         statusCode,
         responseTime: duration,
-        userAgent: req.get('User-Agent'),
-        ip: req.ip || req.connection.remoteAddress,
-        contentLength: res.get('Content-Length')
-      });
+      };
+      
+      const userAgent = req.get('User-Agent');
+      if (userAgent) logData.userAgent = userAgent;
+      
+      const ip = req.ip || req.socket.remoteAddress || undefined;
+      if (ip) logData.ip = ip;
+      
+      const contentLength = res.get('Content-Length');
+      if (contentLength) logData.contentLength = contentLength;
+      
+      logger.http('HTTP Request', logData);
     });
     
     next();
@@ -221,12 +239,19 @@ export function requestLogger() {
 
 // Performance measurement decorator
 export function measurePerformance(operation: string) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = descriptor.value;
+  return function (
+    target: object,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ): PropertyDescriptor {
+    const originalMethod = descriptor.value as (
+      ...args: unknown[]
+    ) => unknown | Promise<unknown>;
     
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (
+      ...args: unknown[]
+    ): Promise<unknown> {
       const startTime = Date.now();
-      
       try {
         const result = await originalMethod.apply(this, args);
         logger.performance(operation, Date.now() - startTime);

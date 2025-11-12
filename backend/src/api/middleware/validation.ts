@@ -10,11 +10,12 @@ export interface ValidationSchemas {
   headers?: ZodSchema;
 }
 
-export interface ValidatedRequest extends Request {
-  body: any;
-  params: any;
-  query: any;
-  headers: any;
+export interface ValidatedRequest<
+  TBody = unknown,
+  TParams = Record<string, string>,
+  TQuery = Record<string, string | string[]>
+> extends Request<TParams, unknown, TBody, TQuery> {
+  // Extends Express Request with proper typing
 }
 
 // Validation options
@@ -37,7 +38,7 @@ export function validate(
   options: ValidationOptions = {}
 ) {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const errors: Record<string, any> = {};
+    const errors: Record<string, unknown> = {};
     const { allowUnknown = false, stripUnknown = true } = options;
 
     try {
@@ -178,7 +179,7 @@ function formatZodErrors(
   field: string;
   message: string;
   code: string;
-  received?: any;
+  received?: unknown;
 }> {
   return errors.map(error => {
     const field = error.path.join('.');

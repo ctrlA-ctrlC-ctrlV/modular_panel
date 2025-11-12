@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { getConfig } from '../../config/index.js';
-import logger from '../../instrumentation/logger.js';
+import logger, { SecurityLogMeta } from '../../instrumentation/logger.js';
 import { AppError } from './errorHandler.js';
 
 // Extended request interface to include user info
@@ -35,7 +35,7 @@ export function adminGuard(req: AuthenticatedRequest, res: Response, next: NextF
     
     // Check if API key is provided
     if (!apiKey) {
-      const logData: any = { severity: 'medium' };
+      const logData: SecurityLogMeta = { severity: 'medium' };
       if (req.ip) logData.ip = req.ip;
       const userAgent = req.get('User-Agent');
       if (userAgent) logData.userAgent = userAgent;
@@ -47,7 +47,7 @@ export function adminGuard(req: AuthenticatedRequest, res: Response, next: NextF
     
     // Validate API key against configured admin key
     if (apiKey !== config.ADMIN_API_KEY) {
-      const logData: any = { severity: 'high', apiKeyPrefix: apiKey.substring(0, 8) + '***' };
+      const logData: SecurityLogMeta & { apiKeyPrefix: string } = { severity: 'high', apiKeyPrefix: apiKey.substring(0, 8) + '***' };
       if (req.ip) logData.ip = req.ip;
       const userAgent = req.get('User-Agent');
       if (userAgent) logData.userAgent = userAgent;
@@ -88,7 +88,7 @@ export function requireAdmin(req: AuthenticatedRequest, res: Response, next: Nex
     }
     
     if (!req.user.isAdmin) {
-      const logData: any = { severity: 'medium' };
+      const logData: SecurityLogMeta & { userId?: string } = { severity: 'medium' };
       if (req.user.id) logData.userId = req.user.id;
       
       logger.security('Authorization failure - admin access required', logData);
@@ -163,7 +163,7 @@ export function requireRole(requiredRole: string) {
       }
       
       if (req.user.role !== requiredRole && !req.user.isAdmin) {
-        const logData: any = { severity: 'medium' };
+        const logData: SecurityLogMeta & { userId?: string } = { severity: 'medium' };
         if (req.user.id) logData.userId = req.user.id;
         
         logger.security('Authorization failure - role access required', logData);

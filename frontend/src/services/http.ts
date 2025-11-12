@@ -159,7 +159,7 @@ export class HttpClient {
     return this.request<T>('GET', endpoint, config);
   }
 
-  async post<T>(endpoint: string, data?: any, config?: RequestConfig): Promise<ApiResponse<T>> {
+  async post<T>(endpoint: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
     const requestConfig: RequestConfig = { ...config };
     if (data) {
       requestConfig.body = JSON.stringify(data);
@@ -167,7 +167,7 @@ export class HttpClient {
     return this.request<T>('POST', endpoint, requestConfig);
   }
 
-  async put<T>(endpoint: string, data?: any, config?: RequestConfig): Promise<ApiResponse<T>> {
+  async put<T>(endpoint: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
     const requestConfig: RequestConfig = { ...config };
     if (data) {
       requestConfig.body = JSON.stringify(data);
@@ -175,7 +175,7 @@ export class HttpClient {
     return this.request<T>('PUT', endpoint, requestConfig);
   }
 
-  async patch<T>(endpoint: string, data?: any, config?: RequestConfig): Promise<ApiResponse<T>> {
+  async patch<T>(endpoint: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
     const requestConfig: RequestConfig = { ...config };
     if (data) {
       requestConfig.body = JSON.stringify(data);
@@ -243,10 +243,24 @@ export interface PaginatedResponse<T> {
 export interface HealthCheckResponse {
   status: 'healthy' | 'unhealthy';
   timestamp: string;
-  version?: string;
-  database?: {
+  version: string;
+  uptime: number;
+  environment: string;
+  database: {
     status: 'connected' | 'disconnected';
     latency?: number;
+    error?: string;
+    pool: {
+      totalConnections: number;
+      idleConnections: number;
+      waitingRequests: number;
+    };
+  };
+  memory: {
+    used: number;
+    free: number;
+    total: number;
+    percentage: number;
   };
 }
 

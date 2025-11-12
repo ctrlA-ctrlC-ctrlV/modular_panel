@@ -52,12 +52,12 @@ description: "Task list template for feature implementation"
 
 ### Connectivity & DigitalOcean (Foundational)
 
-- [ ] T021 Implement database pool with SSL + CA support for DigitalOcean in backend/src/db/pool.ts
-- [ ] T022 Add startup DB connectivity check (fail fast + structured logs) in backend/src/index.ts
-- [ ] T023 Implement /api/v1/health with DB liveness/readiness checks in backend/src/api/controllers/health.controller.ts and backend/src/api/routes/health.routes.ts
-- [ ] T024 [P] Add CORS middleware using ALLOWED_ORIGINS in backend/src/api/middleware/cors.ts and wire in backend/src/index.ts
-- [ ] T025 [P] Add frontend HealthCheck page to probe /api/v1/health in frontend/src/pages/HealthCheckPage.tsx
-- [ ] T026 Create DigitalOcean setup guide with step-by-step changes and verification tests in specs/001-pricing-calculator/ops/digitalocean-setup.md
+- [x] T021 Implement database pool with SSL + CA support for DigitalOcean in backend/src/db/pool.ts
+- [x] T022 Add startup DB connectivity check (fail fast + structured logs) in backend/src/index.ts
+- [x] T023 Implement /api/v1/health with DB liveness/readiness checks in backend/src/api/controllers/health.controller.ts and backend/src/api/routes/health.routes.ts
+- [x] T024 [P] Add CORS middleware using ALLOWED_ORIGINS in backend/src/api/middleware/cors.ts and wire in backend/src/index.ts
+- [x] T025 [P] Add frontend HealthCheck page to probe /api/v1/health in frontend/src/pages/HealthCheckPage.tsx
+- [x] T026 Create DigitalOcean setup guide with step-by-step changes and verification tests in specs/001-pricing-calculator/ops/digitalocean-setup.md
 - [ ] T027 [P] Add DB connectivity integration test in backend/tests/integration/db.health.test.ts
 - [ ] T028 [P] Add preflight script to verify ENV and DB reachability in backend/scripts/preflight.ts
 - [ ] T029 [P] Add minimal seed script to create a current price_config in backend/src/db/seed.ts

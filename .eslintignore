@@ -1,0 +1,10 @@
+# ESLint Ignore Patterns
+node_modules/
+dist/
+build/
+out/
+coverage/
+*.min.js
+# Generated artifacts
+backend/dist/
+frontend/dist/

@@ -1,0 +1,11 @@
+# Prettier Ignore Patterns
+node_modules/
+dist/
+build/
+out/
+coverage/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+backend/dist/
+frontend/dist/

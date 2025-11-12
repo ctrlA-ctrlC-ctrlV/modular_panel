@@ -2,10 +2,22 @@
 // This module handles observability concerns: logging, metrics, and tracing
 
 import logger from './logger.js';
+import type { Request, Response, NextFunction } from 'express';
 
 // Lazy loaded modules
-let metrics: any = null;
-let tracing: any = null;
+interface MetricsModule {
+  metricsMiddleware?: (req: Request, res: Response, next: NextFunction) => void;
+  initializeMetrics?: () => void;
+  getMetrics?: () => string | Promise<string>;
+}
+
+interface TracingModule {
+  initializeTracing?: () => void;
+  shutdownTracing?: () => Promise<void> | void;
+}
+
+let metrics: MetricsModule | null = null;
+let tracing: TracingModule | null = null;
 
 async function loadMetrics() {
   if (metrics) return metrics;
@@ -60,7 +72,7 @@ export async function shutdownObservability(): Promise<void> {
 
 export async function getMetricsMiddleware() {
   const metricsModule = await loadMetrics();
-  return metricsModule?.metricsMiddleware || ((req: any, res: any, next: any) => next());
+  return metricsModule?.metricsMiddleware || ((req: Request, res: Response, next: NextFunction) => next());
 }
 
 export async function getMetrics(): Promise<string> {

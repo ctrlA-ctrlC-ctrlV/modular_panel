@@ -3,11 +3,38 @@ import { createServer } from 'http';
 import { getConfig } from './config/index.js';
 import logger from './instrumentation/logger.js';
 import { errorHandler } from './api/middleware/errorHandler.js';
+import { testConnection, closePool } from './db/pool.js';
+import { initializeObservability, shutdownObservability } from './instrumentation/index.js';
+import healthRoutes from './api/routes/health.routes.js';
+import createCorsMiddleware from './api/middleware/cors.js';
 
 async function startServer(): Promise<void> {
   try {
     const config = getConfig();
+    
+    // Initialize observability stack first
+    await initializeObservability();
+    
+    // Test database connectivity before starting server (fail fast)
+    logger.info('Testing database connectivity...');
+    const dbTest = await testConnection();
+    
+    if (!dbTest.connected) {
+      logger.error('Database connectivity test failed', {
+        error: dbTest.error,
+        latency: dbTest.latency,
+      });
+      throw new Error(`Database connection failed: ${dbTest.error}`);
+    }
+    
+    logger.info('Database connectivity test passed', {
+      latency: dbTest.latency,
+    });
+    
     const app = express();
+
+    // CORS middleware (must be early in the stack)
+    app.use(createCorsMiddleware());
 
     // Basic middleware
     app.use(express.json({ limit: '10mb' }));
@@ -24,9 +51,8 @@ async function startServer(): Promise<void> {
     // Mount all API routes under /api/v1 prefix
     const apiRouter = express.Router();
     
-    // TODO: Add route imports and mounting here
-    // Example: app.use('/api/v1', healthRouter);
-    // Example: app.use('/api/v1', calculateRouter);
+    // Mount health routes
+    apiRouter.use('/health', healthRoutes);
     
     app.use('/api/v1', apiRouter);
 
@@ -43,22 +69,37 @@ async function startServer(): Promise<void> {
       });
     });
 
-    // Graceful shutdown
-    process.on('SIGTERM', () => {
-      logger.info('SIGTERM received, shutting down gracefully');
-      server.close(() => {
-        logger.info('Process terminated');
-        process.exit(0);
+    // Graceful shutdown handling
+    const gracefulShutdown = async (signal: string) => {
+      logger.info(`${signal} received, shutting down gracefully`);
+      
+      server.close(async () => {
+        try {
+          // Close database connections
+          await closePool();
+          
+          // Shutdown observability
+          await shutdownObservability();
+          
+          logger.info('Graceful shutdown completed');
+          process.exit(0);
+        } catch (error) {
+          logger.error('Error during graceful shutdown', {
+            error: error instanceof Error ? error.message : String(error),
+          });
+          process.exit(1);
+        }
       });
-    });
+      
+      // Force exit after 10 seconds
+      setTimeout(() => {
+        logger.error('Forceful shutdown after timeout');
+        process.exit(1);
+      }, 10000);
+    };
 
-    process.on('SIGINT', () => {
-      logger.info('SIGINT received, shutting down gracefully');
-      server.close(() => {
-        logger.info('Process terminated');
-        process.exit(0);
-      });
-    });
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
   } catch (error) {
     logger.error('Failed to start server', { error: error instanceof Error ? error.message : String(error) });

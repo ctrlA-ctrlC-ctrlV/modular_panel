@@ -1,4 +1,5 @@
 import client from 'prom-client';
+import { Request, Response, NextFunction } from 'express';
 import { getConfig } from '../config/index.js';
 import logger from './logger.js';
 
@@ -62,7 +63,7 @@ register.registerMetric(dbQueryDuration);
 
 // Express middleware to collect HTTP metrics
 export function metricsMiddleware() {
-  return (req: any, res: any, next: any) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
     
     res.on('finish', () => {

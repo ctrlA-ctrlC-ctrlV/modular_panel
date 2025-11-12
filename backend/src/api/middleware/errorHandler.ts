@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import logger from '../../instrumentation/logger';
 import { getConfig, isDevelopment } from '../../config';
+import type { AuthenticatedRequest } from './auth';
 
 export interface ApiError extends Error {
   statusCode: number;
@@ -147,7 +148,7 @@ function logError(error: Error, req: Request, statusCode: number): void {
     ip: req.ip,
     userAgent: req.get('User-Agent'),
     requestId: req.headers['x-request-id'],
-    userId: (req as any).user?.id,
+    userId: (req as AuthenticatedRequest).user?.id,
     body: isServerError ? req.body : undefined, // Only log body for server errors
     stack: error.stack
   };
@@ -247,7 +248,7 @@ export function asyncHandler<T extends Request, U extends Response>(
 }
 
 // Graceful shutdown handler
-export function setupGracefulShutdown(server: any): void {
+export function setupGracefulShutdown(server: import('http').Server): void {
   const shutdown = (signal: string) => {
     logger.info(`Received ${signal}. Gracefully shutting down...`);
     

@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 
 import { MigrationRunner } from './migrationRunner';
-import { createPool } from './pool';
+import { createDatabasePool } from './pool';
 
 async function main(): Promise<void> {
   const command = process.argv[2];
@@ -12,7 +12,7 @@ async function main(): Promise<void> {
   }
 
   try {
-    const pool = createPool();
+  const pool = createDatabasePool();
     const runner = new MigrationRunner(pool);
 
     switch (command) {
