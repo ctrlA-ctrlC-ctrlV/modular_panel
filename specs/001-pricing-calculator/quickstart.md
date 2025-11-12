@@ -28,6 +28,23 @@ Create a `.env` in `frontend/` with:
 VITE_API_BASE=http://localhost:4000/api/v1
 ```
 
+## Verification
+
+Before starting the application, verify your configuration:
+
+```bash
+cd backend
+npm run preflight
+```
+
+This script checks:
+- Environment variable configuration
+- Database connectivity and schema
+- SSL/TLS setup (if required)
+- Basic database performance
+
+If all checks pass, you're ready to start the application. If any checks fail, resolve the issues before proceeding.
+
 ## Install & Run
 
 Backend:

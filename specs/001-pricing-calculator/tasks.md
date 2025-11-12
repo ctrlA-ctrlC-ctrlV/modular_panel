@@ -58,10 +58,10 @@ description: "Task list template for feature implementation"
 - [x] T024 [P] Add CORS middleware using ALLOWED_ORIGINS in backend/src/api/middleware/cors.ts and wire in backend/src/index.ts
 - [x] T025 [P] Add frontend HealthCheck page to probe /api/v1/health in frontend/src/pages/HealthCheckPage.tsx
 - [x] T026 Create DigitalOcean setup guide with step-by-step changes and verification tests in specs/001-pricing-calculator/ops/digitalocean-setup.md
-- [ ] T027 [P] Add DB connectivity integration test in backend/tests/integration/db.health.test.ts
-- [ ] T028 [P] Add preflight script to verify ENV and DB reachability in backend/scripts/preflight.ts
-- [ ] T029 [P] Add minimal seed script to create a current price_config in backend/src/db/seed.ts
-- [ ] T030 Add end-to-end smoke test calling /api/v1/calculate after seed in backend/tests/integration/smoke.test.ts
+- [x] T027 [P] Add DB connectivity integration test in backend/tests/integration/db.health.test.ts
+- [x] T028 [P] Add preflight script to verify ENV and DB reachability in backend/scripts/preflight.ts
+- [x] T029 [P] Add minimal seed script to create a current price_config in backend/src/db/seed.ts
+- [x] T030 Add end-to-end smoke test calling /api/v1/calculate after seed in backend/tests/integration/smoke.test.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

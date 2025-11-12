@@ -8,6 +8,39 @@ import { initializeObservability, shutdownObservability } from './instrumentatio
 import healthRoutes from './api/routes/health.routes.js';
 import createCorsMiddleware from './api/middleware/cors.js';
 
+// Create Express app
+function createApp(): express.Application {
+  const app = express();
+
+  // CORS middleware (must be early in the stack)
+  app.use(createCorsMiddleware());
+
+  // Basic middleware
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true }));
+
+  // Add request ID for tracing
+  app.use((req, res, next) => {
+    req.headers['x-request-id'] = req.headers['x-request-id'] || 
+      `req-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    next();
+  });
+
+  // API routes will be mounted here
+  // Mount all API routes under /api/v1 prefix
+  const apiRouter = express.Router();
+  
+  // Mount health routes
+  apiRouter.use('/health', healthRoutes);
+  
+  app.use('/api/v1', apiRouter);
+
+  // Error handling must be last
+  app.use(errorHandler);
+
+  return app;
+}
+
 async function startServer(): Promise<void> {
   try {
     const config = getConfig();
@@ -31,34 +64,7 @@ async function startServer(): Promise<void> {
       latency: dbTest.latency,
     });
     
-    const app = express();
-
-    // CORS middleware (must be early in the stack)
-    app.use(createCorsMiddleware());
-
-    // Basic middleware
-    app.use(express.json({ limit: '10mb' }));
-    app.use(express.urlencoded({ extended: true }));
-
-    // Add request ID for tracing
-    app.use((req, res, next) => {
-      req.headers['x-request-id'] = req.headers['x-request-id'] || 
-        `req-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-      next();
-    });
-
-    // API routes will be mounted here
-    // Mount all API routes under /api/v1 prefix
-    const apiRouter = express.Router();
-    
-    // Mount health routes
-    apiRouter.use('/health', healthRoutes);
-    
-    app.use('/api/v1', apiRouter);
-
-    // Error handling must be last
-    app.use(errorHandler);
-
+    const app = createApp();
     const server = createServer(app);
     
     server.listen(config.PORT, () => {
@@ -112,3 +118,6 @@ startServer().catch((error) => {
   logger.error('Unhandled server startup error', { error: error instanceof Error ? error.message : String(error) });
   process.exit(1);
 });
+
+// Export app for testing
+export default createApp();
