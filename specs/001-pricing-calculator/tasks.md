@@ -75,18 +75,18 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 1 (CONTRACT-FIRST)
 
-- [ ] T031 [P] [US1] Contract test for POST /api/v1/calculate in backend/tests/contract/calculate.test.ts
-- [ ] T032 [P] [US1] Contract test for POST /api/v1/quotes in backend/tests/contract/quotes.create.test.ts
-- [ ] T033 [US1] Integration test: calculate → save → get in backend/tests/integration/quotes.flow.test.ts
+- [x] T031 [P] [US1] Contract test for POST /api/v1/calculate in backend/tests/contract/calculate.test.ts
+- [x] T032 [P] [US1] Contract test for POST /api/v1/quotes in backend/tests/contract/quotes.create.test.ts
+- [x] T033 [US1] Integration test: calculate → save → get in backend/tests/integration/quotes.flow.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T034 [P] [US1] Define Zod schemas for ProductConfigInput in backend/src/schemas/productConfig.ts
-- [ ] T035 [P] [US1] Define Zod schemas for QuoteEstimate and CreateQuoteRequest in backend/src/schemas/quote.ts
-- [ ] T036 [P] [US1] Implement pricing repository to fetch current config in backend/src/modules/pricing/repo.ts
-- [ ] T037 [P] [US1] Implement pure calculation service in backend/src/modules/calculation/service.ts
-- [ ] T038 [US1] Implement /calculate controller and route in backend/src/api/controllers/calculate.controller.ts and backend/src/api/routes/calculate.routes.ts
-- [ ] T039 [US1] Implement quote number generator (transactional sequence) in backend/src/modules/quotes/sequence.ts
+- [x] T034 [P] [US1] Define Zod schemas for ProductConfigInput in backend/src/schemas/productConfig.ts
+- [x] T035 [P] [US1] Define Zod schemas for QuoteEstimate and CreateQuoteRequest in backend/src/schemas/quote.ts
+- [x] T036 [P] [US1] Implement pricing repository to fetch current config in backend/src/modules/pricing/repo.ts
+- [x] T037 [P] [US1] Implement pure calculation service in backend/src/modules/calculation/service.ts
+- [x] T038 [US1] Implement /calculate controller and route in backend/src/api/controllers/calculate.controller.ts and backend/src/api/routes/calculate.routes.ts
+- [x] T039 [US1] Implement quote number generator (transactional sequence) in backend/src/modules/quotes/sequence.ts
 - [ ] T040 [US1] Implement quote repository (persist + fetch by number) in backend/src/modules/quotes/repo.ts
 - [ ] T041 [US1] Implement /quotes controller and route (create, get by number) in backend/src/api/controllers/quotes.controller.ts and backend/src/api/routes/quotes.routes.ts
 - [ ] T042 [P] [US1] Build calculator form UI in frontend/src/components/calculator/CalculatorForm.tsx

@@ -1,13 +1,36 @@
 // Jest setup for backend tests
-import { jest } from '@jest/globals'
+import { Pool } from 'pg';
+import { getConfig } from '../src/config';
 
-// Global test setup
-beforeAll(() => {
-  // Setup code that runs before all tests
-})
+let testPool: Pool;
 
-afterAll(() => {
-  // Cleanup code that runs after all tests
-})
+// Setup test database connection
+export async function setupTestDb(): Promise<void> {
+  const config = getConfig();
+  
+  testPool = new Pool({
+    connectionString: config.DATABASE_URL,
+    ssl: config.DATABASE_URL.includes('localhost') ? false : {
+      rejectUnauthorized: false
+    }
+  });
 
-export { jest }
+  // Ensure database is accessible
+  try {
+    await testPool.query('SELECT 1');
+  } catch (error) {
+    console.error('Failed to connect to test database:', error);
+    throw error;
+  }
+}
+
+// Cleanup test database connection
+export async function teardownTestDb(): Promise<void> {
+  if (testPool) {
+    await testPool.end();
+  }
+}
+
+export function getTestPool(): Pool {
+  return testPool;
+}

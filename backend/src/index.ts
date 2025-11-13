@@ -3,9 +3,11 @@ import { createServer } from 'http';
 import { getConfig } from './config/index.js';
 import logger from './instrumentation/logger.js';
 import { errorHandler } from './api/middleware/errorHandler.js';
-import { testConnection, closePool } from './db/pool.js';
+import { testConnection, closePool, getPool } from './db/pool.js';
 import { initializeObservability, shutdownObservability } from './instrumentation/index.js';
 import healthRoutes from './api/routes/health.routes.js';
+import calculateRoutes from './api/routes/calculate.routes.js';
+import createQuotesRouter from './api/routes/quotes.routes.js';
 import createCorsMiddleware from './api/middleware/cors.js';
 
 // Create Express app
@@ -32,6 +34,12 @@ function createApp(): express.Application {
   
   // Mount health routes
   apiRouter.use('/health', healthRoutes);
+  
+  // Mount calculate routes
+  apiRouter.use('/calculate', calculateRoutes);
+  
+  // Mount quotes routes
+  apiRouter.use('/quotes', createQuotesRouter(getPool()));
   
   app.use('/api/v1', apiRouter);
 

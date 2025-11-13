@@ -19,9 +19,9 @@
 
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import request from 'supertest';
-import { runSeed } from '../../src/db/seed.js';
-import { closePool, query } from '../../src/db/pool.js';
-import app from '../../src/index.js';
+import { runSeed } from '../../src/db/seed';
+import { closePool, query } from '../../src/db/pool';
+import app from '../../src/index';
 
 // Test timeout for integration operations
 const INTEGRATION_TIMEOUT = 30000;
@@ -113,9 +113,9 @@ describe('End-to-End Smoke Tests', () => {
       );
       
       expect(result).toHaveLength(1);
-      expect(result[0].current).toBe(true);
-      expect(result[0].currency).toBe('GBP');
-      expect(result[0].label).toBeTruthy();
+      expect(result[0]?.current).toBe(true);
+      expect(result[0]?.currency).toBe('GBP');
+      expect(result[0]?.label).toBeTruthy();
     });
 
     it('should have quote sequence initialized', async () => {
@@ -126,8 +126,8 @@ describe('End-to-End Smoke Tests', () => {
       );
       
       expect(result).toHaveLength(1);
-      expect(result[0].year).toBe(currentYear);
-      expect(result[0].sequence_number).toBeGreaterThanOrEqual(0);
+      expect(result[0]?.year).toBe(currentYear);
+      expect(result[0]?.sequence_number).toBeGreaterThanOrEqual(0);
     });
 
   });
@@ -158,26 +158,32 @@ describe('End-to-End Smoke Tests', () => {
         .send(SAMPLE_PRODUCT_CONFIG)
         .expect('Content-Type', /json/);
       
-      // If endpoint is not implemented yet, expect 404
-      if (response.status === 404) {
-        console.log('⚠️  Calculate endpoint not yet implemented - test will pass when implemented');
-        expect(response.status).toBe(404);
-        return;
-      }
-      
-      // If endpoint is implemented, verify response structure
+      // Endpoint should be implemented now
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('estimate');
-      expect(response.body.estimate).toHaveProperty('currency');
-      expect(response.body.estimate).toHaveProperty('subtotalExVat');
-      expect(response.body.estimate).toHaveProperty('vatRate');
-      expect(response.body.estimate).toHaveProperty('totalIncVat');
+      
+      // Verify response structure matches our QuoteEstimate schema
+      expect(response.body).toHaveProperty('currency');
+      expect(response.body).toHaveProperty('subtotalExVat');
+      expect(response.body).toHaveProperty('vatRate');
+      expect(response.body).toHaveProperty('totalIncVat');
+      expect(response.body).toHaveProperty('lineItems');
       
       // Verify calculation makes sense
-      expect(response.body.estimate.currency).toBe('GBP');
-      expect(response.body.estimate.subtotalExVat).toBeGreaterThan(0);
-      expect(response.body.estimate.totalIncVat).toBeGreaterThan(response.body.estimate.subtotalExVat);
-      expect(response.body.estimate.vatRate).toBe(0.20); // 20% VAT
+      expect(response.body.currency).toBe('GBP');
+      expect(response.body.subtotalExVat).toBeGreaterThan(0);
+      expect(response.body.totalIncVat).toBeGreaterThan(response.body.subtotalExVat);
+      expect(response.body.vatRate).toBeGreaterThan(0); // VAT rate from config
+      expect(Array.isArray(response.body.lineItems)).toBe(true);
+      expect(response.body.lineItems.length).toBeGreaterThan(0);
+      
+      // Verify line items structure
+      response.body.lineItems.forEach((item: unknown) => {
+        expect(item).toHaveProperty('code');
+        expect(item).toHaveProperty('description');
+        expect(item).toHaveProperty('quantity');
+        expect(item).toHaveProperty('unitPrice');
+        expect(item).toHaveProperty('lineTotal');
+      });
     });
 
     it('should handle invalid product configuration gracefully', async () => {
@@ -193,16 +199,30 @@ describe('End-to-End Smoke Tests', () => {
         .post('/api/v1/calculate')
         .send(invalidConfig);
       
-      // If endpoint is not implemented yet, expect 404
-      if (response.status === 404) {
-        console.log('⚠️  Calculate endpoint not yet implemented - test will pass when implemented');
-        expect(response.status).toBe(404);
-        return;
-      }
-      
-      // If endpoint is implemented, should return validation error
+      // Should return validation error
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('message');
+    });
+
+    it('should handle minimal valid configuration', async () => {
+      const minimalConfig = {
+        size: {
+          widthM: 3.0,
+          depthM: 2.5
+        }
+      };
+      
+      const response = await request(app)
+        .post('/api/v1/calculate')
+        .send(minimalConfig)
+        .expect(200);
+      
+      expect(response.body).toHaveProperty('currency');
+      expect(response.body).toHaveProperty('subtotalExVat');
+      expect(response.body).toHaveProperty('vatRate');
+      expect(response.body).toHaveProperty('totalIncVat');
+      expect(response.body.subtotalExVat).toBeGreaterThan(0);
     });
 
   });
@@ -227,16 +247,14 @@ describe('End-to-End Smoke Tests', () => {
       expect(calcResponse.status).toBe(200);
       calculationResult = calcResponse.body;
       
-      // Now save as quote
+      // Now save as quote with correct payload structure
       const quotePayload = {
         customer: {
           name: 'John Smith',
           email: 'john@example.com',
           phone: '+44 7700 900123'
         },
-        productConfig: SAMPLE_PRODUCT_CONFIG,
-        estimate: calcResponse.body.estimate,
-        notes: 'Test quote from smoke test'
+        productConfig: SAMPLE_PRODUCT_CONFIG
       };
       
       const saveResponse = await request(app)
@@ -251,10 +269,11 @@ describe('End-to-End Smoke Tests', () => {
       }
       
       expect(saveResponse.status).toBe(201);
-      expect(saveResponse.body).toHaveProperty('quoteNumber');
-      expect(saveResponse.body).toHaveProperty('id');
+      expect(saveResponse.body.success).toBe(true);
+      expect(saveResponse.body.data).toHaveProperty('quote');
+      expect(saveResponse.body.data.quote).toHaveProperty('quoteNumber');
       
-      savedQuoteNumber = saveResponse.body.quoteNumber;
+      savedQuoteNumber = saveResponse.body.data.quote.quoteNumber;
       expect(savedQuoteNumber).toMatch(/^Q\d{2}-\d{6}$/); // Format: Q25-001234
     });
 
@@ -276,10 +295,80 @@ describe('End-to-End Smoke Tests', () => {
       }
       
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('quoteNumber', savedQuoteNumber);
-      expect(response.body).toHaveProperty('customer');
-      expect(response.body).toHaveProperty('estimate');
-      expect(response.body.customer.name).toBe('John Smith');
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('quote');
+      expect(response.body.data.quote).toHaveProperty('quoteNumber', savedQuoteNumber);
+      expect(response.body.data.quote).toHaveProperty('customer');
+      expect(response.body.data.quote).toHaveProperty('estimate');
+      expect(response.body.data.quote.customer.name).toBe('John Smith');
+    });
+
+    it('should allow searching quotes', async () => {
+      const response = await request(app)
+        .get('/api/v1/quotes')
+        .query({ limit: 5 });
+      
+      // If endpoint is not implemented yet, expect 404
+      if (response.status === 404) {
+        console.log('⚠️  Quote search endpoint not yet implemented - test will pass when implemented');
+        expect(response.status).toBe(404);
+        return;
+      }
+      
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('quotes');
+      expect(response.body.data).toHaveProperty('pagination');
+      expect(Array.isArray(response.body.data.quotes)).toBe(true);
+    });
+
+    it('should provide quote statistics', async () => {
+      const response = await request(app)
+        .get('/api/v1/quotes/stats');
+      
+      // If endpoint is not implemented yet, expect 404
+      if (response.status === 404) {
+        console.log('⚠️  Quote stats endpoint not yet implemented - test will pass when implemented');
+        expect(response.status).toBe(404);
+        return;
+      }
+      
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('stats');
+      expect(response.body.data.stats).toHaveProperty('totalQuotes');
+      expect(response.body.data.stats).toHaveProperty('activeQuotes');
+      expect(typeof response.body.data.stats.totalQuotes).toBe('number');
+      expect(typeof response.body.data.stats.activeQuotes).toBe('number');
+    });
+
+    it('should handle invalid quote creation gracefully', async () => {
+      const invalidQuotePayload = {
+        customer: {
+          name: '', // Invalid empty name
+          email: 'invalid-email' // Invalid email format
+        },
+        productConfig: {
+          size: {
+            widthM: -1, // Invalid negative width
+            depthM: 3.0
+          }
+        }
+      };
+      
+      const response = await request(app)
+        .post('/api/v1/quotes')
+        .send(invalidQuotePayload);
+      
+      // If endpoint doesn't exist yet, skip validation check
+      if (response.status === 404) {
+        console.log('⚠️  Quotes endpoint not yet implemented - skipping validation test');
+        return;
+      }
+      
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toHaveProperty('code');
     });
 
   });

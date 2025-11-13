@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "vite": "^7.2.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0"
   }
 }
