@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { CalculatorForm } from '../components/calculator/CalculatorForm';
+import { SaveQuoteModal } from '../components/calculator/SaveQuoteModal';
 import { calculatePricing } from '../services/calculate';
 import { formatCurrency } from '../services/quotes';
-import type { ProductConfigInput, QuoteEstimate } from '../types/ProductConfig';
+import type { ProductConfigInput, QuoteEstimate, Quote } from '../types/ProductConfig';
 
 /**
  * Calculator Page Component
@@ -13,12 +14,14 @@ import type { ProductConfigInput, QuoteEstimate } from '../types/ProductConfig';
  * 1. User fills out the CalculatorForm
  * 2. Form is submitted and calculation is performed
  * 3. Results are displayed with line items and totals
- * 4. User can save the quote (future: T046)
+ * 4. User can save the quote with customer information (T046)
  */
 
 export const CalculatorPage: React.FC = () => {
   const [calculationResult, setCalculationResult] = useState<QuoteEstimate | null>(null);
   const [productConfig, setProductConfig] = useState<ProductConfigInput | null>(null);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [savedQuote, setSavedQuote] = useState<Quote | null>(null);
 
   // Mutation for calculating pricing
   const calculateMutation = useMutation({
@@ -45,12 +48,49 @@ export const CalculatorPage: React.FC = () => {
   const handleReset = () => {
     setCalculationResult(null);
     setProductConfig(null);
+    setSavedQuote(null);
     calculateMutation.reset();
+  };
+
+  // Handle opening the save quote modal
+  const handleOpenSaveModal = () => {
+    setShowSaveModal(true);
+  };
+
+  // Handle closing the save quote modal
+  const handleCloseSaveModal = () => {
+    setShowSaveModal(false);
+  };
+
+  // Handle when a quote is successfully saved
+  const handleQuoteSaved = (quote: Quote) => {
+    setSavedQuote(quote);
+    // Modal will automatically show success screen
   };
 
   return (
     <div className="calculator-page">
       <div className="container-fluid py-4">
+        {/* Success notification after saving quote */}
+        {savedQuote && (
+          <div className="row mb-3">
+            <div className="col-12">
+              <div className="alert alert-success alert-dismissible fade show" role="alert">
+                <h5 className="alert-heading">Quote Saved Successfully!</h5>
+                <p className="mb-0">
+                  Your quote has been saved with number: <strong className="font-monospace">{savedQuote.quoteNumber}</strong>
+                </p>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setSavedQuote(null)}
+                  aria-label="Close"
+                ></button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="row">
           {/* Calculator Form Section */}
           <div className={calculationResult ? 'col-lg-7' : 'col-12'}>
@@ -163,8 +203,8 @@ export const CalculatorPage: React.FC = () => {
                     <button
                       type="button"
                       className="btn btn-primary btn-lg"
-                      disabled
-                      title="Save quote functionality coming soon (T046)"
+                      onClick={handleOpenSaveModal}
+                      disabled={!calculationResult}
                     >
                       Save Quote
                     </button>
@@ -229,6 +269,17 @@ export const CalculatorPage: React.FC = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Save Quote Modal */}
+        {calculationResult && productConfig && (
+          <SaveQuoteModal
+            isOpen={showSaveModal}
+            onClose={handleCloseSaveModal}
+            productConfig={productConfig}
+            calculationResult={calculationResult}
+            onQuoteSaved={handleQuoteSaved}
+          />
         )}
       </div>
     </div>
