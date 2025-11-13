@@ -92,7 +92,7 @@ description: "Task list template for feature implementation"
 - [x] T042 [P] [US1] Build calculator form UI in frontend/src/components/calculator/CalculatorForm.tsx
 - [x] T043 [P] [US1] Implement calculate API client in frontend/src/services/calculate.ts
 - [x] T044 [P] [US1] Implement save quote API client in frontend/src/services/quotes.ts
-- [ ] T045 [US1] Wire calculator page with state and display totals in frontend/src/pages/CalculatorPage.tsx
+- [x] T045 [US1] Wire calculator page with state and display totals in frontend/src/pages/CalculatorPage.tsx
 - [ ] T046 [US1] Add "Save Quote" flow and success screen in frontend/src/components/calculator/SaveQuoteModal.tsx
 - [ ] T047 [US1] Add audit logging for save events in backend/src/modules/quotes/audit.ts
 
