@@ -87,9 +87,9 @@ description: "Task list template for feature implementation"
 - [x] T037 [P] [US1] Implement pure calculation service in backend/src/modules/calculation/service.ts
 - [x] T038 [US1] Implement /calculate controller and route in backend/src/api/controllers/calculate.controller.ts and backend/src/api/routes/calculate.routes.ts
 - [x] T039 [US1] Implement quote number generator (transactional sequence) in backend/src/modules/quotes/sequence.ts
-- [ ] T040 [US1] Implement quote repository (persist + fetch by number) in backend/src/modules/quotes/repo.ts
-- [ ] T041 [US1] Implement /quotes controller and route (create, get by number) in backend/src/api/controllers/quotes.controller.ts and backend/src/api/routes/quotes.routes.ts
-- [ ] T042 [P] [US1] Build calculator form UI in frontend/src/components/calculator/CalculatorForm.tsx
+- [x] T040 [US1] Implement quote repository (persist + fetch by number) in backend/src/modules/quotes/repo.ts
+- [x] T041 [US1] Implement /quotes controller and route (create, get by number) in backend/src/api/controllers/quotes.controller.ts and backend/src/api/routes/quotes.routes.ts
+- [x] T042 [P] [US1] Build calculator form UI in frontend/src/components/calculator/CalculatorForm.tsx
 - [ ] T043 [P] [US1] Implement calculate API client in frontend/src/services/calculate.ts
 - [ ] T044 [P] [US1] Implement save quote API client in frontend/src/services/quotes.ts
 - [ ] T045 [US1] Wire calculator page with state and display totals in frontend/src/pages/CalculatorPage.tsx
