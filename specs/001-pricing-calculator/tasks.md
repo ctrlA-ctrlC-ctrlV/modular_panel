@@ -113,7 +113,7 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 2
 
 - [x] T049 [P] [US2] Implement document template (HTML) in backend/src/modules/documents/templates/quote.html
-- [ ] T050 [US2] Implement document generation service in backend/src/modules/documents/service.ts
+- [x] T050 [US2] Implement document generation service in backend/src/modules/documents/service.ts
 - [ ] T051 [US2] Implement /quotes/{quoteNumber}/document controller + route in backend/src/api/controllers/documents.controller.ts and backend/src/api/routes/documents.routes.ts
 - [ ] T052 [P] [US2] Add frontend "Generate Quote" button and download handler in frontend/src/components/quote-management/GenerateDocumentButton.tsx
 
