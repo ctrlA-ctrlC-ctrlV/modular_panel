@@ -6,6 +6,7 @@ import { PricingRepository } from '../../modules/pricing/repo';
 import { CreateQuoteRequest, QuoteEstimate, Quote } from '../../schemas/quote';
 import { ProductConfigInputSchema } from '../../schemas/productConfig';
 import logger from '../../instrumentation/logger';
+import { QuoteSaveAuditInput, recordQuoteSaved } from '../../modules/quotes/audit';
 
 // Extend Express Request type to include user property
 interface AuthenticatedRequest extends Request {
@@ -75,6 +76,7 @@ export class QuoteController {
    */
   async createQuote(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     const startTime = Date.now();
+    const actorId = req.user?.id || 'anonymous';
     
     try {
       // Validate request body
@@ -103,20 +105,43 @@ export class QuoteController {
         createQuoteRequest,
         estimate,
         priceConfig,
-        req.user?.id || 'anonymous'
+        actorId
       );
       
       const duration = Date.now() - startTime;
       
+      const userAgent = req.get('User-Agent');
+      const requestId = req.get('x-request-id');
+
       logger.info('Quote created successfully', {
         quoteNumber: quote.quoteNumber,
         customerName: quote.customer.name,
         totalIncVat: quote.estimate.totalIncVat,
         currency: quote.estimate.currency,
         duration,
-        userAgent: req.get('User-Agent'),
+        userAgent,
         ip: req.ip
       });
+
+      const auditPayload: QuoteSaveAuditInput = {
+        quote,
+        priceConfigId: priceConfig.id,
+        performedBy: actorId
+      };
+
+      if (req.ip) {
+        auditPayload.ipAddress = req.ip;
+      }
+
+      if (userAgent) {
+        auditPayload.userAgent = userAgent;
+      }
+
+      if (requestId) {
+        auditPayload.requestId = requestId;
+      }
+
+      recordQuoteSaved(auditPayload);
       
       res.status(201).json({
         success: true,
