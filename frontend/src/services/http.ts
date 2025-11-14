@@ -204,8 +204,8 @@ export class HttpClient {
   }
 
   clearAuth(): void {
-    const headers = { ...this.defaultHeaders };
-    delete (headers as any).Authorization;
+    const headers: Record<string, string> = { ...this.defaultHeaders as Record<string, string> };
+    delete headers.Authorization;
     this.defaultHeaders = headers;
   }
 

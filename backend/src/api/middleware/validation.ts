@@ -231,8 +231,8 @@ export function conditionalValidation<T>(
   condition: (data: T) => boolean,
   schema: ZodSchema
 ) {
-  return z.any().superRefine((data, ctx) => {
-    if (condition(data)) {
+  return z.unknown().superRefine((data, ctx) => {
+    if (condition(data as T)) {
       const result = schema.safeParse(data);
       if (!result.success) {
         result.error.issues.forEach(issue => {
@@ -247,8 +247,8 @@ export function conditionalValidation<T>(
 export function crossFieldValidation<T>(
   validator: (data: T) => string | null
 ) {
-  return z.any().superRefine((data, ctx) => {
-    const error = validator(data);
+  return z.unknown().superRefine((data, ctx) => {
+    const error = validator(data as T);
     if (error) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -260,7 +260,7 @@ export function crossFieldValidation<T>(
 
 // Rate limiting based validation
 export function rateLimitValidation(req: Request) {
-  return z.any().superRefine((data, ctx) => {
+  return z.unknown().superRefine((data, ctx) => {
     // Check if request should be rate limited based on content
     if (typeof data === 'object' && data !== null) {
       const stringData = JSON.stringify(data);
