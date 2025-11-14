@@ -1,5 +1,5 @@
 // React Query configuration and query client setup
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ApiError } from '../services/http';
@@ -69,7 +69,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
       {import.meta.env.DEV && (
         <ReactQueryDevtools 
           initialIsOpen={false}
-          position="bottom-right"
+          position="bottom"
         />
       )}
     </QueryClientProvider>
@@ -90,7 +90,7 @@ export const queryKeys = {
   // Quotes
   quotes: {
     all: () => ['quotes'] as const,
-    search: (params: Record<string, any>) => ['quotes', 'search', params] as const,
+    search: (params: Record<string, unknown>) => ['quotes', 'search', params] as const,
     byNumber: (quoteNumber: string) => ['quotes', 'byNumber', quoteNumber] as const,
     document: (quoteNumber: string) => ['quotes', 'document', quoteNumber] as const,
   },
@@ -100,12 +100,12 @@ export const queryKeys = {
     all: () => ['pricing'] as const,
     current: () => ['pricing', 'current'] as const,
     byId: (id: string) => ['pricing', 'byId', id] as const,
-    list: (params?: Record<string, any>) => ['pricing', 'list', params] as const,
+    list: (params?: Record<string, unknown>) => ['pricing', 'list', params] as const,
   },
   
   // Calculator
   calculator: {
-    calculate: (input: Record<string, any>) => ['calculator', 'calculate', input] as const,
+    calculate: (input: Record<string, unknown>) => ['calculator', 'calculate', input] as const,
   },
 } as const;
 
@@ -167,7 +167,7 @@ if (import.meta.env.DEV) {
   // Log slow queries in development
   queryClient.setQueryDefaults(['*'], {
     meta: {
-      onSuccess: (data: any, query: any) => {
+      onSuccess: (_data: unknown, query: { state: { dataUpdatedAt: number }; queryKey: readonly unknown[] }) => {
         const executionTime = Date.now() - query.state.dataUpdatedAt;
         if (executionTime > 2000) {
           console.warn(`Slow query detected: ${query.queryKey.join(' > ')} took ${executionTime}ms`);

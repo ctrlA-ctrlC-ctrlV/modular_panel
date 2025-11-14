@@ -69,7 +69,7 @@ export class HttpClient {
   }
 
   private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
-    let data: any;
+    let data: unknown;
     
     try {
       const text = await response.text();
@@ -83,7 +83,8 @@ export class HttpClient {
     }
 
     if (!response.ok) {
-      const errorData = data?.error || {};
+      const errorResponse = data as { error?: { message?: string; code?: string; details?: Record<string, unknown> } };
+      const errorData = errorResponse.error || {};
       throw new ApiError(
         errorData.message || `HTTP ${response.status}: ${response.statusText}`,
         response.status,
@@ -94,7 +95,7 @@ export class HttpClient {
 
     return {
       success: true,
-      data: data
+      data: data as T
     };
   }
 

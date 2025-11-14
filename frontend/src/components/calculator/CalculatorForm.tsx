@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { ProductConfigInput } from '../../types/ProductConfig';
+import { ProductConfigInput, ElectricalConfig, InternalWallConfig, FloorConfig } from '../../types/ProductConfig';
 
 /**
  * Calculator Form Component
@@ -282,36 +282,10 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
     }));
   }, []);
 
-  const addPermittedDevelopmentFlag = useCallback(() => {
-    setFormState(prev => ({
-      ...prev,
-      permittedDevelopmentFlags: [
-        ...(prev.permittedDevelopmentFlags || []),
-        { code: '', label: '', id: `flag-${Date.now()}` }
-      ]
-    }));
-  }, []);
-
-  const removePermittedDevelopmentFlag = useCallback((id: string) => {
-    setFormState(prev => ({
-      ...prev,
-      permittedDevelopmentFlags: prev.permittedDevelopmentFlags?.filter(flag => flag.id !== id) || []
-    }));
-  }, []);
-
-  const updatePermittedDevelopmentFlag = useCallback((id: string, field: 'code' | 'label', value: string) => {
-    setFormState(prev => ({
-      ...prev,
-      permittedDevelopmentFlags: prev.permittedDevelopmentFlags?.map(flag =>
-        flag.id === id ? { ...flag, [field]: value } : flag
-      ) || []
-    }));
-  }, []);
-
   // Convert form state to ProductConfigInput
   const convertToProductConfig = useCallback((): ProductConfigInput | null => {
     try {
-      const config: any = {
+      const config: Partial<ProductConfigInput> = {
         size: {
           widthM: parseFloat(formState.size.widthM),
           depthM: parseFloat(formState.size.depthM)
@@ -330,21 +304,27 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
       }
 
       if (formState.electrical && Object.values(formState.electrical).some(v => v)) {
-        config.electrical = {};
+        const electrical: ElectricalConfig = {};
         Object.entries(formState.electrical).forEach(([key, value]) => {
-          if (value) config.electrical[key] = parseInt(value as string, 10);
+          if (value) {
+            electrical[key as keyof ElectricalConfig] = parseInt(value as string, 10);
+          }
         });
+        config.electrical = electrical;
       }
 
       if (formState.internal_doors) {
         config.internal_doors = parseInt(formState.internal_doors, 10);
       }
 
-      if (formState.internal_wall && formState.internal_wall.finish !== 'none') {
-        config.internal_wall = {
-          finish: formState.internal_wall.finish,
-          areaSqM: formState.internal_wall.areaSqM ? parseFloat(formState.internal_wall.areaSqM) : undefined
+      if (formState.internal_wall && formState.internal_wall.finish !== 'none' && formState.internal_wall.finish) {
+        const internalWall: InternalWallConfig = {
+          finish: formState.internal_wall.finish
         };
+        if (formState.internal_wall.areaSqM) {
+          internalWall.areaSqM = parseFloat(formState.internal_wall.areaSqM);
+        }
+        config.internal_wall = internalWall;
       }
 
       if (formState.heaters) {
@@ -383,11 +363,14 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
         }
       }
 
-      if (formState.floor && formState.floor.type !== 'none') {
-        config.floor = {
-          type: formState.floor.type,
-          areaSqM: formState.floor.areaSqM ? parseFloat(formState.floor.areaSqM) : undefined
+      if (formState.floor && formState.floor.type !== 'none' && formState.floor.type) {
+        const floor: FloorConfig = {
+          type: formState.floor.type
         };
+        if (formState.floor.areaSqM) {
+          floor.areaSqM = parseFloat(formState.floor.areaSqM);
+        }
+        config.floor = floor;
       }
 
       if (formState.delivery && (formState.delivery.distanceKm || formState.delivery.cost)) {

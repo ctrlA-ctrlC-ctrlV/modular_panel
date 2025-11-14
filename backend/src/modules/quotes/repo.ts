@@ -1,4 +1,4 @@
-import { Pool, QueryResult } from 'pg';
+import { Pool, QueryResult, PoolClient } from 'pg';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { Quote, CustomerInfo, QuoteEstimate, CreateQuoteRequest } from '../../schemas/quote';
@@ -531,7 +531,7 @@ export class QuoteRepository implements IQuoteRepository {
    * Create product config record for normalization
    */
   private async createProductConfig(
-    client: any, 
+    client: PoolClient, 
     productConfig: ProductConfigInput, 
     estimate: QuoteEstimate
   ): Promise<string> {
@@ -571,7 +571,7 @@ export class QuoteRepository implements IQuoteRepository {
   /**
    * Reconstruct line items from pricing config and product snapshot
    */
-  private reconstructLineItems(dbRow: any): Array<any> {
+  private reconstructLineItems(dbRow: QuoteDb): Array<{ code: string; description: string; quantity: number; unitPrice: number; lineTotal: number }> {
     // For now, return a basic line item structure
     // In a full implementation, this would reconstruct the calculation
     return [{
@@ -586,7 +586,7 @@ export class QuoteRepository implements IQuoteRepository {
   /**
    * Map database row to domain model
    */
-  private mapDbToDomain(dbRow: any, lineItems: any[]): Quote {
+  private mapDbToDomain(dbRow: QuoteDb, lineItems: Array<{ code: string; description: string; quantity: number; unitPrice: number; lineTotal: number }>): Quote {
     try {
       return {
         quoteNumber: dbRow.quote_number,
