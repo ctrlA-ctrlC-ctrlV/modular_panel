@@ -49,7 +49,7 @@ function App() {
             </div>
             <nav className="flex space-x-4" aria-label="Primary">
               <NavLink to="/price-calculator" className={navClasses}>
-                Calculator
+                Calculator                               
               </NavLink>
               <button className="text-gray-400 cursor-not-allowed px-3 py-2 rounded-md text-sm font-medium" disabled>
                 Quotes

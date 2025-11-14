@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{documentTitle}}</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+        --brand-color: #0f766e;
+        --brand-accent: #0ea5e9;
+        --surface-color: #f8fafc;
+        --border-color: #e2e8f0;
+        --text-color: #0f172a;
+        --muted-color: #475569;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 32px;
+        background-color: var(--surface-color);
+        color: var(--text-color);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 20px;
+        margin-bottom: 24px;
+      }
+
+      .brand {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .brand-logo {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+      }
+
+      .brand-details h1 {
+        margin: 0;
+        font-size: 22px;
+        color: var(--brand-color);
+      }
+
+      .brand-details p {
+        margin: 4px 0 0;
+        color: var(--muted-color);
+      }
+
+      .document-meta {
+        min-width: 220px;
+        border-left: 2px solid var(--border-color);
+        padding-left: 16px;
+      }
+
+      .meta-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+
+      .meta-label {
+        color: var(--muted-color);
+        font-weight: 600;
+      }
+
+      section {
+        margin-bottom: 28px;
+      }
+
+      h2 {
+        font-size: 16px;
+        color: var(--brand-color);
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .card {
+        background-color: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+      }
+
+      .grid-two {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      .info-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .info-list li {
+        margin-bottom: 10px;
+      }
+
+      .info-label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted-color);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin-bottom: 2px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      thead {
+        background-color: #e2f4f2;
+      }
+
+      th {
+        text-align: left;
+        padding: 10px;
+        color: var(--brand-color);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      td {
+        padding: 10px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #fdfefe;
+      }
+
+      .amount {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+      }
+
+      .summary-card {
+        padding: 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background-color: #ffffff;
+      }
+
+      .summary-card .label {
+        color: var(--muted-color);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        font-size: 12px;
+      }
+
+      .summary-card .value {
+        margin-top: 6px;
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-color);
+      }
+
+      .notes {
+        white-space: pre-wrap;
+        min-height: 80px;
+      }
+
+      footer {
+        border-top: 2px solid var(--border-color);
+        padding-top: 16px;
+        font-size: 12px;
+        color: var(--muted-color);
+      }
+
+      .terms {
+        margin-top: 8px;
+        white-space: pre-wrap;
+      }
+
+      @page {
+        margin: 32px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <img src="{{brandLogoUrl}}" alt="{{brandName}} logo" class="brand-logo" />
+        <div class="brand-details">
+          <h1>{{brandName}}</h1>
+          <p>{{brandTagline}}</p>
+        </div>
+      </div>
+      <div class="document-meta">
+        <div class="meta-row">
+          <span class="meta-label">Quote #</span>
+          <span>{{quoteNumber}}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Quote Date</span>
+          <span>{{quoteDate}}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Generated</span>
+          <span>{{generatedAt}}</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="grid-two">
+      <div class="card">
+        <h2>Customer</h2>
+        <ul class="info-list">
+          <li>
+            <span class="info-label">Name</span>
+            <span>{{customerName}}</span>
+          </li>
+          <li>
+            <span class="info-label">Email</span>
+            <span>{{customerEmail}}</span>
+          </li>
+          <li>
+            <span class="info-label">Phone</span>
+            <span>{{customerPhone}}</span>
+          </li>
+          <li>
+            <span class="info-label">Address</span>
+            <span>{{customerAddress}}</span>
+          </li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Prepared By</h2>
+        <p>{{companyContactBlock}}</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Project Overview</h2>
+        <p>{{projectSummary}}</p>
+        <table>
+          <tbody>
+            <!-- specificationRows placeholder expects <tr><td>Label</td><td>Value</td></tr> entries -->
+            {{specificationRows}}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Itemized Breakdown</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Description</th>
+              <th>Qty</th>
+              <th class="amount">Unit Price</th>
+              <th class="amount">Line Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- lineItemRows placeholder expects <tr> entries with five <td> cells -->
+            {{lineItemRows}}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="summary">
+        <div class="summary-card">
+          <span class="label">Subtotal (ex VAT)</span>
+          <div class="value">{{subtotalExVat}}</div>
+        </div>
+        <div class="summary-card">
+          <span class="label">VAT ({{vatRate}})</span>
+          <div class="value">{{vatAmount}}</div>
+        </div>
+        <div class="summary-card" style="border-color: var(--brand-accent); box-shadow: 0 6px 14px rgba(14, 165, 233, 0.3);">
+          <span class="label">Total ({{currencyCode}})</span>
+          <div class="value" style="color: var(--brand-accent);">{{totalIncVat}}</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Additional Notes</h2>
+        <div class="notes">{{notes}}</div>
+      </div>
+    </section>
+
+    <footer>
+      <div>Quote is valid for 30 days unless stated otherwise.</div>
+      <div class="terms">{{termsAndConditions}}</div>
+    </footer>
+  </body>
+</html>
